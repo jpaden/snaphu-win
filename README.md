@@ -46,9 +46,12 @@ You do not need to know how to program in C.
 MSYS2 is a free set of Unix tools for Windows, including the C compiler
 (GCC) that builds SNAPHU.
 
-1. Go to <https://www.msys2.org/> and download the installer. Its name looks
-   like `msys2-x86_64-YYYYMMDD.exe`, where `YYYYMMDD` is a date.
-2. Run the installer. Keep the suggested folder, `C:\msys64`.
+1. Go to <https://www.msys2.org/> and download the installer (about 80 MB).
+   Its name looks like `msys2-x86_64-YYYYMMDD.exe`, where `YYYYMMDD` is a
+   date. The download link on that page goes to GitHub, which is where the
+   MSYS2 project keeps its installers.
+2. Run the installer. Click Next on each page and keep the suggested
+   choices, including the folder `C:\msys64`. It takes a minute or two.
 3. On the last page, clear the "Run MSYS2 now" box and click Finish. The
    next step opens the right terminal.
 
@@ -60,14 +63,14 @@ MSYS2 puts several terminals in the Start menu. They look alike but use
 different compilers. **SNAPHU needs the one named "MSYS2 MSYS".**
 
 1. Open the Start menu, type `MSYS2 MSYS`, and open it.
-2. Check the prompt. It ends with the word `MSYS` in purple, like this:
+2. Check the prompt. It ends with the word `MSYS` in purple (magenta), like this:
 
    ```
    yourname@yourcomputer MSYS ~
    $
    ```
 
-If the prompt says `MINGW64`, `UCRT64`, or `CLANG64`, close the window and
+If the prompt says `MINGW64`, `UCRT64`, `CLANG64`, or `CLANGARM64`, close the window and
 open "MSYS2 MSYS". [Why this matters](#why-the-msys-terminal) is explained
 below.
 
@@ -83,10 +86,14 @@ First update MSYS2:
 pacman -Syu
 ```
 
-Answer `Y` when it asks. If it says that the terminal must be closed, close
-it, open "MSYS2 MSYS" again, and run the same command once more.
+It may ask more than one question; answer `Y` each time. The first time, it
+usually says that the terminal will be closed to finish the update, and the
+window then closes by itself. Open "MSYS2 MSYS" again and run the same
+command once more. The update is finished when the command ends and the
+window stays open.
 
-Then install the tools that the build needs (roughly 100 MB to download):
+Then install the tools that the build needs (about 90 MB to download, about
+550 MB on disk):
 
 ```bash
 pacman -S --needed gcc make wget tar git
@@ -99,6 +106,9 @@ pacman -S --needed gcc make wget tar git
 | `wget` | Downloads the SNAPHU source from Stanford |
 | `tar` | Unpacks the downloaded file |
 | `git` | Downloads this repository |
+
+Lines such as `warning: wget-1.25.0-6 is up to date -- skipping` are normal.
+They mean that the tool is already installed.
 
 ## Step 4. Get this repository
 
@@ -118,24 +128,32 @@ avoid folders with spaces in their names.
 ./build.sh
 ```
 
-This takes about a minute. It prints each thing that it does:
+This takes less than a minute. It prints each thing that it does:
 
 1. Downloads `snaphu-v2.0.7.tar.gz` (171 kB) from Stanford.
 2. Checks that the download is the exact file these instructions were tested
    with (see [Checking the download](#checking-the-download)).
 3. Unpacks it into the `build` folder.
-4. Compiles it. A few compiler warnings are printed; they are harmless.
-5. Copies `msys-2.0.dll` next to `snaphu.exe`.
+4. Compiles it. About 20 compiler warnings are printed, which fill a couple
+   of screens. They are harmless. The build worked if the output ends with
+   the `== Done` lines shown below.
+5. Makes a second copy of `snaphu.exe` in `build\windows`, with
+   `msys-2.0.dll` next to it, for use from Windows programs.
 
 The last lines tell you where SNAPHU is, for example:
 
 ```
-== Done. SNAPHU is here:
-  C:\msys64\home\yourname\snaphu-win\build\snaphu-v2.0.7\bin\snaphu.exe
+== Done. SNAPHU is in two places:
+  For Windows programs (Command Prompt, PowerShell, MATLAB, Python):
+    C:\msys64\home\yourname\snaphu-win\build\windows\snaphu.exe
+    Keep msys-2.0.dll in the same folder as this snaphu.exe.
+  For use inside this MSYS2 terminal:
+    /home/yourname/snaphu-win/build/snaphu-v2.0.7/bin/snaphu.exe
 ```
 
-Write this path down. It is what you give to MATLAB, Python, or the Command
-Prompt to run SNAPHU.
+Write the first path down. It is what you give to MATLAB, Python, or the
+Command Prompt to run SNAPHU. [Using SNAPHU](#using-snaphu) explains why
+there are two copies.
 
 ## Step 6. Test it
 
@@ -144,25 +162,47 @@ Prompt to run SNAPHU.
 ```
 
 This makes a small test interferogram whose true phase is known, unwraps it
-with the SNAPHU you just built, and compares the result to the truth. The
-last lines should be:
+with the SNAPHU you just built, and compares the result to the truth. It
+does this twice, once for each copy of SNAPHU. Among the SNAPHU messages you
+should see these lines twice:
 
 ```
 Largest difference from the true phase: 1.35e-05 radians (allowed: 1e-03)
 PASS
 ```
 
-The first number can differ slightly on your computer. If you see `PASS`,
-you are done.
+and the last line should be:
+
+```
+== Both tests passed
+```
+
+The number can differ slightly on your computer. If you see
+`== Both tests passed`, you are done.
 
 ## Using SNAPHU
 
-`snaphu.exe` is an ordinary Windows program. You can run it from the MSYS2
-terminal, the Command Prompt, PowerShell, MATLAB, or Python. Ordinary
-Windows file names such as `C:\data\wrapped.bin` work.
+The build makes two copies of SNAPHU. They are the same program. Which one
+you use depends on where you run it:
 
-**Keep `msys-2.0.dll` in the same folder as `snaphu.exe`.** If you copy
-SNAPHU somewhere else, copy both files.
+| Where you run SNAPHU | Use this copy |
+|---|---|
+| Command Prompt, PowerShell, MATLAB, Python, or any other Windows program | `build\windows\snaphu.exe` |
+| Inside the "MSYS2 MSYS" terminal | `build/snaphu-v2.0.7/bin/snaphu.exe` |
+
+Most people only need the first one. Ordinary Windows file names such as
+`C:\data\wrapped.bin` work with it.
+
+The reason for two copies is the file `msys-2.0.dll`, which SNAPHU needs in
+order to run on Windows:
+
+- **Keep `msys-2.0.dll` in the same folder as the Windows copy of
+  `snaphu.exe`.** If you copy SNAPHU somewhere else, copy both files from
+  `build\windows`.
+- Do not put `msys-2.0.dll` next to the copy that you run inside the MSYS2
+  terminal. The terminal already has that file loaded, and with a second
+  copy of it `snaphu.exe` does not start: it prints nothing and stops with
+  status 127.
 
 The simplest use is:
 
@@ -177,13 +217,13 @@ snaphu.exe INPUT_FILE LINE_LENGTH -o OUTPUT_FILE
 From the Command Prompt:
 
 ```
-C:\msys64\home\yourname\snaphu-win\build\snaphu-v2.0.7\bin\snaphu.exe C:\data\wrapped.bin 300 -o C:\data\unwrapped.bin
+C:\msys64\home\yourname\snaphu-win\build\windows\snaphu.exe C:\data\wrapped.bin 300 -o C:\data\unwrapped.bin
 ```
 
 From MATLAB:
 
 ```matlab
-snaphu_path = 'C:\msys64\home\yourname\snaphu-win\build\snaphu-v2.0.7\bin\snaphu.exe';
+snaphu_path = 'C:\msys64\home\yourname\snaphu-win\build\windows\snaphu.exe';
 cmd_str = sprintf('"%s" "%s" %d -o "%s"', snaphu_path, fn_in, line_length, fn_out);
 system(cmd_str);
 ```
@@ -218,7 +258,8 @@ to do this.
 # 1. Download the source from Stanford
 wget https://web.stanford.edu/group/radar/softwareandlinks/sw/snaphu/snaphu-v2.0.7.tar.gz
 
-# 2. Check the download (it should print the hash shown in the next section)
+# 2. Check the download (compare what it prints to the hash under
+#    "Checking the download" below)
 sha256sum snaphu-v2.0.7.tar.gz
 
 # 3. Unpack it
@@ -227,11 +268,13 @@ tar -xzf snaphu-v2.0.7.tar.gz
 # 4. Compile it
 make -C snaphu-v2.0.7/src CC="gcc" CFLAGS="-O3 -Wall -std=gnu17 -D NO_CS2"
 
-# 5. Copy the MSYS2 runtime next to the program
-cp /usr/bin/msys-2.0.dll snaphu-v2.0.7/bin/
+# 5. Make a copy for Windows programs, with the MSYS2 runtime next to it
+mkdir windows && cp snaphu-v2.0.7/bin/snaphu.exe /usr/bin/msys-2.0.dll windows/
 ```
 
-SNAPHU is then `snaphu-v2.0.7/bin/snaphu.exe`.
+SNAPHU is then `windows\snaphu.exe` for Windows programs and
+`snaphu-v2.0.7/bin/snaphu.exe` for use inside the MSYS2 terminal (see
+[Using SNAPHU](#using-snaphu)).
 
 ## What the build changes
 
@@ -259,6 +302,9 @@ it is not this value:
 c03ac126f9a964321bb5d6fb5b4004728368da268d7cb8407bb295a8abe5b262  snaphu-v2.0.7.tar.gz
 ```
 
+`sha256sum` may print an asterisk (`*`) in front of the file name. That is
+normal.
+
 A hash is a fingerprint of a file: if even one byte of the file changes,
 the hash changes. This value was computed from the file downloaded from the
 Stanford address above on 2026-11-23 (171206 bytes, dated 2024-03-12 on the
@@ -277,8 +323,9 @@ SNAPHU uses Unix functions (`fork`, `wait`, `kill`, and the header
 `sys/resource.h`) that Windows does not have.
 
 - The **MSYS2 MSYS** environment supplies those functions through a library,
-  `msys-2.0.dll`. This is why that file must stay next to `snaphu.exe`.
-- The **MSYS2 MINGW64, UCRT64, and CLANG64** environments make programs that
+  `msys-2.0.dll`. This is why the Windows copy of `snaphu.exe` needs that
+  file next to it.
+- The **MSYS2 MINGW64, UCRT64, CLANG64, and CLANGARM64** environments make programs that
   call Windows directly. They do not have those functions, so SNAPHU does
   not compile there without rewriting parts of it.
 - The **MinGW-w64 compiler that MATLAB uses for MEX files** is the same kind
@@ -297,7 +344,9 @@ SNAPHU uses Unix functions (`fork`, `wait`, `kill`, and the header
 | `sha256sum: WARNING: 1 computed checksum did NOT match` | The download is damaged or the file at Stanford has changed. Delete `build/snaphu-v2.0.7.tar.gz` and run `./build.sh` again. If it still fails, do not build it; open an issue here. |
 | `incompatible pointer type` errors in `snaphu_tile.c` | `-std=gnu17` is missing from the compile command. See [What the build changes](#what-the-build-changes). |
 | `unrecognized command-line option '-arch'` | You ran `make` without the `CFLAGS` setting. Use the command in [Building by hand](#building-by-hand). |
-| A message that `msys-2.0.dll` was not found when running `snaphu.exe` | `msys-2.0.dll` must be in the same folder as `snaphu.exe`. Copy it from `C:\msys64\usr\bin`. |
+| A "snaphu.exe - System Error" window that says "The code execution cannot proceed because msys-2.0.dll was not found. Reinstalling the program may fix this problem." | Reinstalling does not help. `msys-2.0.dll` must be in the same folder as `snaphu.exe`. Use the copy of SNAPHU in `build\windows`, or copy `msys-2.0.dll` from `C:\msys64\usr\bin`. |
+| In the MSYS2 terminal `snaphu.exe` prints nothing, and `echo $?` then prints `127` | You ran a copy of SNAPHU that has `msys-2.0.dll` next to it. Inside the MSYS2 terminal use `build/snaphu-v2.0.7/bin/snaphu.exe`. See [Using SNAPHU](#using-snaphu). |
+| `snaphu.exe -h` shows the help but reports exit code 1 | That is normal for `-h`. |
 | `wget` cannot connect | Check your internet connection. On some networks a proxy or VPN is needed to reach `web.stanford.edu`. |
 
 To start over, delete the `build` folder and run `./build.sh` again.

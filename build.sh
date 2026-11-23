@@ -12,8 +12,10 @@
 #      below.
 #   3. Extracts the source into build/.
 #   4. Compiles it with make. The source files are not modified.
-#   5. Copies msys-2.0.dll next to snaphu.exe so that snaphu.exe runs from
-#      any Windows program (Command Prompt, PowerShell, MATLAB, Python).
+#   5. Makes a second copy of snaphu.exe in build/windows with msys-2.0.dll
+#      next to it. That copy runs from any Windows program (Command Prompt,
+#      PowerShell, MATLAB, Python). The copy that make produced is for use
+#      inside the MSYS2 terminal and must not have msys-2.0.dll next to it.
 #
 # Nothing is installed and nothing outside of this folder is changed.
 # Everything this script makes is in build/. Delete build/ to start over.
@@ -107,14 +109,24 @@ echo "== Compiling with: make CC=\"$CC\" CFLAGS=\"$CFLAGS\""
 make -C "snaphu-v${VERSION}/src" CC="$CC" CFLAGS="$CFLAGS"
 
 # -----------------------------------------------------------------------------
-# 5. Copy the MSYS2 runtime next to the program
+# 5. Make a copy for Windows programs
 # -----------------------------------------------------------------------------
 
-cp /usr/bin/msys-2.0.dll "snaphu-v${VERSION}/bin/"
+# A program built in the MSYS environment needs the MSYS2 runtime,
+# msys-2.0.dll. Inside the MSYS2 terminal the runtime is already there, and
+# a second copy of it next to snaphu.exe stops snaphu.exe from starting.
+# Windows programs do not know where the runtime is, so they need it next to
+# snaphu.exe. That is why there are two copies of snaphu.exe.
+echo "== Copying snaphu.exe and msys-2.0.dll to build/windows"
+mkdir -p windows
+cp "snaphu-v${VERSION}/bin/snaphu.exe" windows/
+cp /usr/bin/msys-2.0.dll windows/
 
-BIN_DIR="$(pwd)/snaphu-v${VERSION}/bin"
 echo
-echo "== Done. SNAPHU is here:"
-echo "  $(cygpath -w "${BIN_DIR}/snaphu.exe")"
-echo "Keep msys-2.0.dll in the same folder as snaphu.exe."
-echo "Run ./test.sh to check that it works."
+echo "== Done. SNAPHU is in two places:"
+echo "  For Windows programs (Command Prompt, PowerShell, MATLAB, Python):"
+echo "    $(cygpath -w "$(pwd)/windows/snaphu.exe")"
+echo "    Keep msys-2.0.dll in the same folder as this snaphu.exe."
+echo "  For use inside this MSYS2 terminal:"
+echo "    $(pwd)/snaphu-v${VERSION}/bin/snaphu.exe"
+echo "Run ./test.sh to check that both work."
