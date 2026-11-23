@@ -1,0 +1,4 @@
+# Shell scripts must keep Unix line endings or bash cannot run them
+*.sh text eol=lf
+*.c text eol=lf
+*.md text eol=lf
