@@ -355,7 +355,8 @@ To start over, delete the `build` folder and run `./build.sh` again.
 
 | Date | Windows | MSYS2 runtime | GCC | SNAPHU | Result |
 |---|---|---|---|---|---|
-| 2026-11-23 | Windows 11 Enterprise (10.0.26100) | 3.6.4 | 15.2.0 | 2.0.7 | `test.sh` passes; run from MATLAB R2024b with Windows file names; tile mode with 2 processes runs |
+| 2026-11-23 | Windows 11 Enterprise (10.0.26100) | 3.6.4 | 15.2.0 | 2.0.7 | `test.sh` passes both tests; run from MATLAB R2024b with Windows file names; tile mode with 2 processes runs |
+| 2026-11-23 | Windows 11 Enterprise Evaluation (10.0.26300), clean install following these instructions | 3.6.12 | 16.2.0 | 2.0.7 | `test.sh` passes both tests; building by hand works; run from Command Prompt, PowerShell, and MATLAB R2024b |
 
 ## Credit, references, and licenses
 
