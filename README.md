@@ -180,6 +180,13 @@ and the last line should be:
 The number can differ slightly on your computer. If you see
 `== Both tests passed`, you are done.
 
+SNAPHU also prints this line during the test. It is normal for this small
+test image and is not a problem:
+
+```
+WARNING: No overall cost reduction for too many iterations.  Breaking loop
+```
+
 ## Using SNAPHU
 
 The build makes two copies of SNAPHU. They are the same program. Which one
@@ -225,7 +232,10 @@ From MATLAB:
 ```matlab
 snaphu_path = 'C:\msys64\home\yourname\snaphu-win\build\windows\snaphu.exe';
 cmd_str = sprintf('"%s" "%s" %d -o "%s"', snaphu_path, fn_in, line_length, fn_out);
-system(cmd_str);
+status = system(cmd_str);
+if status ~= 0
+  error('snaphu failed (status %d)', status);
+end
 ```
 
 ### File formats
@@ -269,7 +279,7 @@ tar -xzf snaphu-v2.0.7.tar.gz
 make -C snaphu-v2.0.7/src CC="gcc" CFLAGS="-O3 -Wall -std=gnu17 -D NO_CS2"
 
 # 5. Make a copy for Windows programs, with the MSYS2 runtime next to it
-mkdir windows && cp snaphu-v2.0.7/bin/snaphu.exe /usr/bin/msys-2.0.dll windows/
+mkdir -p windows && cp snaphu-v2.0.7/bin/snaphu.exe /usr/bin/msys-2.0.dll windows/
 ```
 
 SNAPHU is then `windows\snaphu.exe` for Windows programs and
@@ -349,7 +359,10 @@ SNAPHU uses Unix functions (`fork`, `wait`, `kill`, and the header
 | `snaphu.exe -h` shows the help but reports exit code 1 | That is normal for `-h`. |
 | `wget` cannot connect | Check your internet connection. On some networks a proxy or VPN is needed to reach `web.stanford.edu`. |
 
-To start over, delete the `build` folder and run `./build.sh` again.
+To start over, delete the `build` folder and run `./build.sh` again. Do this
+too if you built SNAPHU with a version of these instructions older than
+commit `48213cd` (2026-11-23): those versions put `msys-2.0.dll` in
+`build\snaphu-v2.0.7\bin`, where it causes the status 127 problem above.
 
 ## Tested with
 
