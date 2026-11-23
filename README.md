@@ -339,8 +339,8 @@ your own MSYS2 installation. It has its own license; see the MSYS2 web site
 before you redistribute it.
 
 **The files in this repository** (`README.md`, `build.sh`, `test.sh`,
-`test/selftest.c`) are released under CC0 1.0 (see `LICENSE`): use them any
-way you like.
+`test/selftest.c`) are released under the MIT License (see `LICENSE`). That
+license covers only these files, not SNAPHU.
 
 ## Related work
 
